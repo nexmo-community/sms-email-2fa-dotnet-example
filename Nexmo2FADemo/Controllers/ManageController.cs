@@ -101,6 +101,7 @@ namespace Nexmo2FADemo.Controllers
 
         //
         // GET: /Manage/AddPhoneNumber
+        [AllowAnonymous]
         public ActionResult AddPhoneNumber()
         {
             return View();
@@ -172,15 +173,15 @@ namespace Nexmo2FADemo.Controllers
 
         //
         // GET: /Manage/VerifyPhoneNumber
+        [AllowAnonymous]
         public async Task<ActionResult> VerifyPhoneNumber(string phoneNumber)
         {
-            var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), phoneNumber);
-            // Send an SMS through the SMS provider to verify the phone number
             return phoneNumber == null ? View("Error") : View(new VerifyPhoneNumberViewModel { PhoneNumber = phoneNumber });
         }
 
         //
         // POST: /Manage/VerifyPhoneNumber
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> VerifyPhoneNumber(VerifyPhoneNumberViewModel model)
@@ -189,10 +190,10 @@ namespace Nexmo2FADemo.Controllers
             {
                 return View(model);
             }
-            var result = await UserManager.ChangePhoneNumberAsync(User.Identity.GetUserId(), model.PhoneNumber, model.Code);
+            var result = await UserManager.ChangePhoneNumberAsync((string)Session["UserID"], model.PhoneNumber, model.Code);
             if (result.Succeeded)
             {
-                var user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+                var user = await UserManager.FindByIdAsync((string)Session["UserID"]);
                 if (user != null)
                 {
                     await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
@@ -203,6 +204,7 @@ namespace Nexmo2FADemo.Controllers
             ModelState.AddModelError("", "Failed to verify phone");
             return View(model);
         }
+
 
         //
         // POST: /Manage/RemovePhoneNumber
