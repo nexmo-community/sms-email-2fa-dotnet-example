@@ -109,6 +109,7 @@ namespace Nexmo2FADemo.Controllers
         //
         // POST: /Manage/AddPhoneNumber
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> AddPhoneNumber(AddPhoneNumberViewModel model)
         {
@@ -116,18 +117,27 @@ namespace Nexmo2FADemo.Controllers
             {
                 return View(model);
             }
-            // Generate the token and send it
-            var code = await UserManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), model.Number);
-            if (UserManager.SmsService != null)
+            var db = new ApplicationDbContext();
+            if (db.Users.FirstOrDefault(u => u.PhoneNumber == model.Number) == null)
             {
-                var message = new IdentityMessage
+                // Generate the token and send it
+                var code = await UserManager.GenerateChangePhoneNumberTokenAsync((string)Session["UserID"], model.Number);
+                if (UserManager.SmsService != null)
                 {
-                    Destination = model.Number,
-                    Body = "Your security code is: " + code
-                };
-                await UserManager.SmsService.SendAsync(message);
+                    var message = new IdentityMessage
+                    {
+                        Destination = model.Number,
+                        Body = "Your security code is: " + code
+                    };
+                    await UserManager.SmsService.SendAsync(message);
+                }
+                return RedirectToAction("VerifyPhoneNumber", new { PhoneNumber = model.Number });
             }
-            return RedirectToAction("VerifyPhoneNumber", new { PhoneNumber = model.Number });
+            else
+            {
+                ModelState.AddModelError("", "The provided phone number is associated with another account.");
+                return View();
+            }
         }
 
         //
