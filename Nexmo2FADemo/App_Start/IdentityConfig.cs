@@ -11,15 +11,48 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using Nexmo2FADemo.Models;
+using Nexmo.Api;
+using SendGrid;
+using System.Net;
+using System.Configuration;
+using System.Diagnostics;
 
 namespace Nexmo2FADemo
 {
     public class EmailService : IIdentityMessageService
     {
-        public Task SendAsync(IdentityMessage message)
+        public async Task SendAsync(IdentityMessage message)
         {
             // Plug in your email service here to send an email.
-            return Task.FromResult(0);
+            await configSendGridasync(message);
+        }
+        private async Task configSendGridasync(IdentityMessage message)
+        {
+            var myMessage = new SendGridMessage();
+            myMessage.AddTo(message.Destination);
+            myMessage.From = new System.Net.Mail.MailAddress(
+                            "demo@nexmo.com", "Nexmo2FADemo");
+            myMessage.Subject = message.Subject;
+            myMessage.Text = message.Body;
+            myMessage.Html = message.Body;
+            var credentials = new NetworkCredential(
+                       ConfigurationManager.AppSettings["mailAccount"],
+                       ConfigurationManager.AppSettings["mailPassword"]
+                       );
+
+            // Create a Web transport for sending email.
+            var transportWeb = new Web(credentials);
+
+            // Send the email.
+            if (transportWeb != null)
+            {
+                await transportWeb.DeliverAsync(myMessage);
+            }
+            else
+            {
+                Trace.TraceError("Failed to create Web transport.");
+                await Task.FromResult(0);
+            }
         }
     }
 
@@ -27,7 +60,12 @@ namespace Nexmo2FADemo
     {
         public Task SendAsync(IdentityMessage message)
         {
-            // Plug in your SMS service here to send a text message.
+            var sms = SMS.Send(new SMS.SMSRequest
+            {
+                from = ConfigurationManager.AppSettings["SMSAccountFrom"],
+                to = message.Destination,
+                text = message.Body
+            });
             return Task.FromResult(0);
         }
     }
