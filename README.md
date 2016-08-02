@@ -240,10 +240,8 @@ Inside the Account folder of the Views folder, create a new View named 'Info' th
 <h3>@ViewBag.Message</h3>
 ```
 
-### [![alt text](https://maxcdn.icons8.com/Android\_L/PNG/48/Logos/github\_copyrighted-48.png)](https://github.com/nexmo-community/nexmo-verify-2fa-dotnet-example/commit/8501c9884faa97139dc4b30f2f41b4c448cd2641) Update Login View
-Inside the Account folder of the Views folder, edit the Login and VerifyCode views. In both files, delete the <div> containing the 'Remember Me' checkbox. This will restrict the user from bypassing 2FA verification.  Also, delete the corresponding variable in each of the view models ('SendCodeViewModel' and 'VerifyCodeViewModel').
-
-### Conclusion
+### [![alt text](https://maxcdn.icons8.com/Android\_L/PNG/48/Logos/github\_copyrighted-48.png)](https://github.com/nexmo-community/nexmo-verify-2fa-dotnet-example/commit/8501c9884faa97139dc4b30f2f41b4c448cd2641) Update Account Views
+Inside the Account folder of the Views folder, edit the Login and VerifyCode views. In both files, delete the <div> containing the 'Remember Me' checkbox. This will restrict the user from bypassing 2FA verification.  
 
 With that, you have a web app using ASP .NET Identity that is 2 Factor Authentication enabled using Nexmo Verify and SendGrid Email as the different methods of verification.  
 
