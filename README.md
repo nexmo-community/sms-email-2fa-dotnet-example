@@ -247,7 +247,7 @@ Inside the Account folder of the Views folder, edit the Login and VerifyCode vie
 
 With that, you have a web app using ASP .NET Identity that is 2 Factor Authentication enabled using Nexmo Verify and SendGrid Email as the different methods of verification.  
 
-![alt text](https://giphy.com/gifs/d3g1n80UrhF12Rzi/fullscreen)
+![](https://giphy.com/gifs/d3g1n80UrhF12Rzi/fullscreen)
 
 2FA adds a layer of security to correctly identify users and further protect sensitive user information. Using Nexmo's C# Client Library and SendGrid's C# Client, you can add both email and phone verification for your 2FA solution with ease. Feel free to send me any thoughts/questions on Twitter @sidsharma_27 or email me at sidharth.sharma@nexmo.com!
 
