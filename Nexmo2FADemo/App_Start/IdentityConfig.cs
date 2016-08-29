@@ -16,6 +16,10 @@ using SendGrid;
 using System.Net;
 using System.Configuration;
 using System.Diagnostics;
+using System.Net.Http;
+using System.Net.Mail;
+using SendGrid.Helpers.Mail;
+using System.Threading.Tasks;
 
 namespace Nexmo2FADemo
 {
@@ -28,31 +32,16 @@ namespace Nexmo2FADemo
         }
         private async Task configSendGridasync(IdentityMessage message)
         {
-            var myMessage = new SendGridMessage();
-            myMessage.AddTo(message.Destination);
-            myMessage.From = new System.Net.Mail.MailAddress(
-                            "demo@nexmo.com", "Nexmo2FADemo");
-            myMessage.Subject = message.Subject;
-            myMessage.Text = message.Body;
-            myMessage.Html = message.Body;
-            var credentials = new NetworkCredential(
-                       ConfigurationManager.AppSettings["mailAccount"],
-                       ConfigurationManager.AppSettings["mailPassword"]
-                       );
+            string apiKey = ConfigurationManager.AppSettings["mailAPIKey"];
+            dynamic sg = new SendGridAPIClient(apiKey, "https://api.sendgrid.com");
 
-            // Create a Web transport for sending email.
-            var transportWeb = new Web(credentials);
+            Email from = new Email("demo@nexmo.com");
+            string subject = message.Subject;
+            Email to = new Email(message.Destination);
+            Content content = new Content("text/plain", message.Body);
+            Mail mail = new Mail(from, subject, to, content);
 
-            // Send the email.
-            if (transportWeb != null)
-            {
-                await transportWeb.DeliverAsync(myMessage);
-            }
-            else
-            {
-                Trace.TraceError("Failed to create Web transport.");
-                await Task.FromResult(0);
-            }
+            dynamic response = await sg.client.mail.send.post(requestBody: mail.Get());
         }
     }
 
